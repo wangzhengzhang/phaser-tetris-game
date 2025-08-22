@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>俄罗斯方块</title>
+    <meta name="viewport" content="width=320, initial-scale=1">
+    <style>
+        body {
+            margin: 0;
+            background: #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #fff;
+            margin-top: 24px;
+            font-size: 2em;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            margin-top: 16px;
+            border: 2px solid #f0f0f0; /* 添加白色边框，宽度3px */
+            box-sizing: border-box;
+            width: 480px; /* 与 Phaser 游戏宽度一致 */
+            height: 640px; /* 建议与 Phaser 游戏高度一致 */
+            overflow: hidden; /* 防止画布溢出遮挡边框 */
+            position: relative;
+        }
+        #game-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .btn-group {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+        }
+        button {
+            padding: 8px 18px;
+            font-size: 1em;
+            border-radius: 4px;
+            border: none;
+            background: #444;
+            color: #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            outline:none;
+        }
+        /* 禁用状态样式 */
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        button:hover {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="btn-group">
+        <button id="btn-start">开始</button>
+        <button id="btn-pause">暂停</button>
+        <button id="btn-reset">重新开始(Enter)</button>
+ 
+    </div>
+    <h1>俄罗斯方块</h1>
+    <div id="game-container" style="width: 600px;"></div>
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/phaser/3.55.2/phaser.min.js"></script> -->
+    <script src="phaser.min.js"></script>
+    <script src="index.js"></script>
+    <script>
+        document.addEventListener("keydown", function(event) {
+            // console.log(event.keyCode == 32);
+            // if (event.keyCode == 32 ) {
+            //     event.stopPropagation();  // 阻止事件冒泡
+            //     event.preventDefault();   // 阻止默认行为
+            // }
+        });
+
+        // 按钮功能实现
+        let tetrisScene;
+        let gameInstance;
+
+        // 等待 Phaser 游戏加载完成
+        window.addEventListener('DOMContentLoaded', function () {
+            // 监听 Phaser 游戏实例和场景
+            if (window.Phaser && window.game) {
+                gameInstance = window.game;
+                tetrisScene = gameInstance.scene.keys['TetrisScene'];
+            }
+            
+            if(tetrisScene) return;
+            
+            else {
+                // 兼容 index.js 里没有挂载到 window 的情况
+                setTimeout(() => {
+                    if (window.game) {
+                        gameInstance = window.game;
+                        tetrisScene = gameInstance.scene.keys['TetrisScene'];
+                    }
+                }, 500);
+            }
+
+            document.getElementById('btn-start').onclick = function () {
+                if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1 ，阻止键盘事件
+                
+                enableButtons(0b011); // 启用暂停按钮，禁用开始按钮和重置按钮   
+                if (tetrisScene && typeof tetrisScene.startGame === 'function') {
+                    tetrisScene.startGame();
+                } else if (gameInstance) {
+                    gameInstance.scene.resume('TetrisScene');
+                }
+            };
+            document.getElementById('btn-pause').onclick = function () {
+                if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
+
+                if (gameInstance) {
+                    enableButtons(0b100); // 启用开始按钮，禁用暂停和重置按钮
+                    gameInstance.scene.pause('TetrisScene');
+                }
+            };
+            document.getElementById('btn-reset').onclick = function () {
+                console.log(event.pointerId);
+                if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
+                
+                enableButtons(0b010); // 启用开始和重置按钮，禁用暂停按钮
+                if (tetrisScene && typeof tetrisScene.restartGame === 'function') {
+                    tetrisScene.restartGame();
+                }
+            };
+
+            function enableButtons(enableOption) {
+                document.getElementById('btn-start').disabled = !(enableOption & 4);
+                document.getElementById('btn-pause').disabled = !(enableOption & 2);
+                document.getElementById('btn-reset').disabled = !(enableOption & 1);
+            }
+
+            enableButtons(0b011); // 初始状态，启用开始和重置按钮，禁用暂停按钮  
+            
+        });
+    </script>
+</body>
+</html>
