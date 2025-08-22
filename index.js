@@ -1,5 +1,9 @@
 // 一个简易的 Phaser 俄罗斯方块游戏
 class TetrisScene extends Phaser.Scene {
+    preload() {
+        this.load.audio('click', 'assets/sounds/click.mp3');
+        this.load.audio('score', 'assets/sounds/score.mp3');
+    }
     constructor() {
         super({ key: 'TetrisScene' });
         this.grid = [];
@@ -24,7 +28,6 @@ class TetrisScene extends Phaser.Scene {
     }
 
     create() {
-        // document.getElementById('btn-reset').addEventListener('click', () => this.restartGame());
         this.blockGroup = this.add.group(); // 新增
         this.initGrid();
         this.spawnTetromino();
@@ -163,19 +166,41 @@ class TetrisScene extends Phaser.Scene {
             }
         }
         if (linesCleared > 0) {
+            this.sound.play('score');
             this.score += linesCleared * 1;
             this.scoreText.setText(`当前得分: ${this.score}`);
         }
     }
 
     handleInput(event) {
-        if (event.code === 'Enter') this.restartGame();
+        if (event.code === 'Enter') 
+        {
+            this.sound.play('click');
+            this.restartGame();
+        }
         if (this.gameOver || !this.tetromino) return;
-        if (event.code === 'ArrowLeft') this.moveTetromino(-1, 0);
-        if (event.code === 'ArrowRight') this.moveTetromino(1, 0);
-        if (event.code === 'ArrowDown') this.moveTetromino(0, 1);
-        if (event.code === 'ArrowUp') this.rotateTetromino();
-        if (event.code === 'Space') this.hardDrop();
+        if (event.code === 'ArrowLeft') 
+        {
+            this.sound.play('click');
+            this.moveTetromino(-1, 0);
+        }
+        if (event.code === 'ArrowRight'){
+            this.sound.play('click');
+            this.moveTetromino(1, 0);
+        }
+        if (event.code === 'ArrowDown'){
+            this.sound.play('click');            
+            this.moveTetromino(0, 1);
+        }
+        if (event.code === 'ArrowUp'){
+            this.sound.play('click');
+            this.rotateTetromino();
+        }
+        if (event.code === 'Space') 
+        {
+            this.sound.play('click');
+            this.hardDrop();
+        }
         
     }
 
