@@ -1,148 +1,421 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <base href="/game/tetris/" />
     <title>俄罗斯方块</title>
-    <meta name="viewport" content="width=320, initial-scale=1">
     <style>
-        body {
-            margin: 0;
-            background: #222;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-        }
-        h1 {
-            color: #fff;
-            margin-top: 24px;
-            font-size: 2em;
-            font-family: Arial, sans-serif;
-        }
-        #game-container {
-            margin-top: 16px;
-            border: 2px solid #f0f0f0; /* 添加白色边框，宽度3px */
-            box-sizing: border-box;
-            width: 480px; /* 与 Phaser 游戏宽度一致 */
-            height: 640px; /* 建议与 Phaser 游戏高度一致 */
-            overflow: hidden; /* 防止画布溢出遮挡边框 */
-            position: relative;
-        }
-        #game-container canvas {
-            display: block;
-            width: 100% !important;
-            height: 100% !important;
-        }
-        .btn-group {
-            margin-top: 24px;
-            display: flex;
-            gap: 12px;
-        }
-        button {
-            padding: 8px 18px;
-            font-size: 1em;
-            border-radius: 4px;
-            border: none;
-            background: #444;
-            color: #f0f0f0;
-            cursor: pointer;
-            transition: background 0.2s;
-            outline:none;
-        }
-        /* 禁用状态样式 */
-        button:disabled {
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        button:hover {
-            background: #666;
-        }
+      .sound-toggle {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+      .sound-toggle:hover {
+        transform: scale(1.1);
+      }
     </style>
-</head>
-<body>
-    <div class="btn-group">
-        <button id="btn-start">开始</button>
-        <button id="btn-pause">暂停</button>
-        <button id="btn-reset">重新开始(Enter)</button>
- 
+    <link
+      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#faa31b",
+              secondary: "#f76c5e",
+              dark: "#2d3047",
+              light: "#e0e1dd",
+              board: "#bbada0",
+              cell: "#cdc1b4",
+              empty: "#cdc1b4",
+              bd: "#10101020",
+
+              "tile-2": "#eee4da",
+              "tile-4": "#ede0c8",
+              "tile-8": "#f2b179",
+              "tile-16": "#f59563",
+              "tile-32": "#f67c5f",
+              "tile-64": "#f65e3b",
+              "tile-128": "#edcf72",
+              "tile-256": "#edcc61",
+              "tile-512": "#edc850",
+              "tile-1024": "#edc53f",
+              "tile-2048": "#edc22e",
+              "tile-super": "#3c3a32",
+            },
+            fontFamily: {
+              game: ['"Clear Sans"', "Helvetica Neue", "Arial", "sans-serif"],
+            },
+            boxShadow: {
+              tile: "0 4px 8px rgba(0, 0, 0, 0.15)",
+              button: "0 4px 0 rgba(0, 0, 0, 0.15)",
+              "button-hover": "0 6px 0 rgba(0, 0, 0, 0.2)",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-light to-gray-300 min-h-screen font-game text-dark flex flex-col items-center justify-center p-4 sm:p-6"
+  >
+    <div class="w-full max-w-[416px] mx-auto flex flex-col items-center">
+      <!-- 游戏标题、分数和音效控制 -->
+      <div class="w-full flex justify-between items-center mt-2 mb-2">
+        <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-dark text-shadow">
+          Tetris
+        </h1>
+        <div class="flex gap-3 items-center">
+          <div class="bg-dark rounded-lg px-3 py-2 text-center">
+            <div class="text-xs text-primary uppercase font-bold">得分</div>
+            <div id="score" class="text-white text-xl font-bold">0</div>
+          </div>
+          <div class="bg-dark rounded-lg px-3 py-2 text-center">
+            <div class="text-xs text-primary uppercase font-bold">
+              最高分
+            </div>
+            <div id="scoreMax" class="text-white text-xl font-bold">0</div>
+          </div>
+
+          <div class="bg-dark rounded-lg px-3 py-2 text-center">
+            <div class="text-xs text-primary uppercase font-bold">等级</div>
+            <div class="text-white text-xl font-bold">
+              <span id="level">1</span>/10
+            </div>
+          </div>
+
+          <div
+            id="soundToggle"
+            class="sound-toggle bg-dark text-white p-2 rounded-full"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                id="soundIcon"
+                d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
+              />
+            </svg>
+          </div>
+        </div>
+        <!-- <div class="instructions">使用方向键控制贪吃蛇移动</div> -->
+      </div>
+      <!-- 游戏控制和说明 -->
+      <div class="w-full flex justify-between items-center mb-4">
+        <div>
+          <button
+            id="newGame"
+            onclick="restartGame();"
+            class="bg-primary hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-button hover:shadow-button-hover transform hover:-translate-y-0.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50"
+          >
+            新游戏
+          </button>
+          <button
+            id="pauseGame"
+            onclick="togglePauseGame();"
+            class="bg-secondary hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-button hover:shadow-button-hover transform hover:-translate-y-0.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50"
+          >
+            暂停
+          </button>
+        </div>
+        <div class="text-sm text-gray-600 hidden sm:block">
+          <span class="mr-3">方向键控制方块转动,空格键急速</span>
+        </div>
+      </div>
+
+      <div id="gameArea" class="border-2 border-bd"></div>
+
+      <!-- 弹框相关代码 begin -->
+      <!-- 弹框样式 -->
+      <style>
+        /* 弹窗动画 */
+        .modal-appear {
+          animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            /* transform: translate(-50%, -60%) scale(0.95); 从中央上方10%位置、95%大小开始 */
+          }
+          to {
+            opacity: 1;
+            /* transform: translate(-50%, -50%) scale(1); 到达中央位置、正常大小 */
+          }
+        }
+      </style>
+
+      <!-- 弹窗容器 -->
+      <div
+        id="modalContainer"
+        class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-opacity duration-300 hidden"
+      >
+        <!-- 弹窗主体 -->
+        <div
+          id="modalContent"
+          class="w-full max-w-[250px] mx-4 bg-light rounded-xl border-2 border-primary p-5 transform scale-95 transition-all duration-300"
+        >
+          <!-- 标题栏 -->
+          <div
+            class="flex justify-between items-center mb-4 pb-3 border-b border-gray-700"
+          >
+            <h3 class="text-xl font-bold text-white flex items-center">
+              <i class="fa fa-star text-primary mr-2"></i>
+              <span id="modalContentTitle" class="text-dark text-shadow"
+                >恭喜完成挑战</span
+              >
+            </h3>
+            <!-- <button
+              id="closeModal"
+              class="text-gray-400 hover:text-black transition-colors"
+            >
+              <i class="fa fa-times"></i>
+            </button> -->
+          </div>
+
+          <!-- 内容区 -->
+          <div class="text-gray-200">
+            <div>
+              <p class="text-sm text-dark text-shadow text-center">
+                <span id="modalContentText"> 获得经验: +250</span>
+              </p>
+            </div>
+            <p class="text-sm text-gray-400 text-center mt-5">
+              按 Enter 重新开始
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- 弹框脚本 -->
+      <script>
+        const modalContent = document.getElementById("modalContent");
+        const modalContainer = document.getElementById("modalContainer");
+        function showModelDialog(title, conent) {
+          modalContentTitle.textContent = title;
+          modalContentText.textContent = conent;
+          // 显示游戏结束界面
+          modalContainer.classList.remove("pointer-events-none", "hidden");
+          modalContent.classList.remove("scale-95");
+          modalContent.classList.add("scale-100");
+          document.body.style.overflow = "hidden";
+        }
+        // 关闭弹窗
+        const closeModalDialog = () => {
+          modalContainer.classList.add("hidden");
+          modalContent.classList.remove("scale-100");
+          modalContent.classList.add("scale-95");
+          document.body.style.overflow = "";
+        };
+
+        //closeModal.addEventListener("click", closeModalDialog);
+        document.addEventListener("keydown", (e) => {
+          if (
+            e.key === "Enter" &&
+            !modalContent.classList.contains("pointer-events-none")
+          ) {
+            closeModalDialog();
+          }
+        });
+      </script>
+
+      <!-- 弹框相关代码 end -->
     </div>
-    <h1>俄罗斯方块</h1>
-    <div id="game-container" style="width: 600px;"></div>
+
+    <!-- game script -->
     <!-- <script src="https://cdn.bootcdn.net/ajax/libs/phaser/3.55.2/phaser.min.js"></script> -->
     <script src="phaser.min.js"></script>
     <script src="index.js"></script>
     <script>
-        document.addEventListener("keydown", function(event) {
-            // console.log(event.keyCode == 32);
-            // if (event.keyCode == 32 ) {
-            //     event.stopPropagation();  // 阻止事件冒泡
-            //     event.preventDefault();   // 阻止默认行为
-            // }
-        });
+      document.addEventListener("keydown", function (event) {
+        // console.log(event.keyCode == 32);
+        // if (event.keyCode == 32 ) {
+        //     event.stopPropagation();  // 阻止事件冒泡
+        //     event.preventDefault();   // 阻止默认行为
+        // }
+      });
 
-        // 按钮功能实现
-        let tetrisScene;
-        let gameInstance;
+      // 按钮功能实现
+      let tetrisScene;
+      let gameInstance;
 
-        // 等待 Phaser 游戏加载完成
-        window.addEventListener('DOMContentLoaded', function () {
-            // 监听 Phaser 游戏实例和场景
-            if (window.Phaser && window.game) {
-                gameInstance = window.game;
-                tetrisScene = gameInstance.scene.keys['TetrisScene'];
+      function restartGame() {
+        if (event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1 ，阻止键盘事件
+
+        enableButtons(0b011); // 启用暂停按钮，禁用开始按钮和重置按钮
+        if (tetrisScene && typeof tetrisScene.restartGame === "function") {
+          tetrisScene.restartGame();
+        } else if (gameInstance) {
+          gameInstance.scene.resume("TetrisScene");
+        }
+      }
+
+      function togglePauseGame() {
+        if (event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
+
+        if (gameInstance) {
+          //enableButtons(0b100); // 启用开始按钮，禁用暂停和重置按钮
+
+          // 判断游戏当前状态
+          if (!gameInstance.scene.isPaused("TetrisScene")) {
+            gameInstance.scene.pause("TetrisScene");
+            document.getElementById("pauseGame").textContent = "继续";
+
+          } else {
+            gameInstance.scene.resume("TetrisScene");
+            document.getElementById("pauseGame").textContent = "暂停";
+          }
+        }
+      }
+
+
+      var clickSound;
+      var scoreSound;
+      // 音效控制 - 简化为只使用clickSound
+      const soundManager = {
+        enabled: localStorage.getItem("tetris-sound-enabled") !== "false", // 默认开启音效
+
+        // // 播放音效
+        // play: function (key) {
+        //   if (!this.enabled) return;
+
+        //   switch (key) {
+        //     case "click":
+        //       if (clickSound) clickSound.play();
+        //       break;
+        //     case "score":
+        //       if (scoreSound) scoreSound.play();
+        //       break;
+        //     // case "complete":
+        //     //   if (completeSound) completeSound.play();
+        //     //   break;
+        //     // case "broken":
+        //     //   if (brokenSound) brokenSound.play();
+        //     //   break;
+        //     default:
+        //       break;
+        //   }
+        // },
+
+        // 切换音效开关状态
+        toggle: function () {
+          this.enabled = !this.enabled;
+          localStorage.setItem("tetris-sound-enabled", this.enabled);
+          this.updateIcon();
+        },
+
+        // 更新音效图标
+        updateIcon: function () {
+          const soundIcon = document.getElementById("soundIcon");
+          if (this.enabled) {
+            // 开启状态的图标
+            soundIcon.setAttribute(
+              "d",
+              "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
+            );
+          } else {
+            // 关闭状态的图标（带斜线）
+            soundIcon.setAttribute(
+              "d",
+              "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"
+            );
+          }
+        },
+      };
+
+      // 初始化音效控制按钮状态
+      soundManager.updateIcon();
+      document.getElementById("soundToggle").addEventListener("click", () => {
+        soundManager.toggle();
+      });
+
+      var scoreMax = localStorage.getItem("tetris-max-score")??0;
+      document.getElementById("scoreMax").textContent = scoreMax;
+
+      //   // 游戏失败结束
+      //   function gameOver(score) {
+      //     showModelDialog("失败！","您的得分：" + score);
+
+      //   }
+
+      //   // 游戏胜利
+      //   function gameWin(score) {
+      //     showModelDialog("恭喜，胜利通关！","您的得分：" + score);
+      //   }
+
+      function enableButtons(enableOption) {
+        document.getElementById("newGame").disabled = !(enableOption & 0b001);
+        document.getElementById("pauseGame").disabled = !(enableOption & 0b010);
+      }
+
+      function updateScoreUI(score, level) {
+        document.getElementById("score").textContent = score;
+        document.getElementById("level").textContent = level;
+        if(scoreMax < score){
+            scoreMax = score;
+            localStorage.setItem("tetris-max-score", scoreMax);
+            document.getElementById("scoreMax").textContent = scoreMax;
+        }
+      }
+
+      // 等待 Phaser 游戏加载完成
+      window.addEventListener("DOMContentLoaded", function () {
+        // 监听 Phaser 游戏实例和场景
+        if (window.Phaser && window.game) {
+          gameInstance = window.game;
+          tetrisScene = gameInstance.scene.keys["TetrisScene"];
+        }
+
+        if (tetrisScene) return;
+        else {
+          // 兼容 index.js 里没有挂载到 window 的情况
+          setTimeout(() => {
+            if (window.game) {
+              gameInstance = window.game;
+              tetrisScene = gameInstance.scene.keys["TetrisScene"];
             }
-            
-            if(tetrisScene) return;
-            
-            else {
-                // 兼容 index.js 里没有挂载到 window 的情况
-                setTimeout(() => {
-                    if (window.game) {
-                        gameInstance = window.game;
-                        tetrisScene = gameInstance.scene.keys['TetrisScene'];
-                    }
-                }, 500);
-            }
+          }, 500);
+        }
 
-            document.getElementById('btn-start').onclick = function () {
-                if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1 ，阻止键盘事件
-                
-                enableButtons(0b011); // 启用暂停按钮，禁用开始按钮和重置按钮   
-                if (tetrisScene && typeof tetrisScene.startGame === 'function') {
-                    tetrisScene.startGame();
-                } else if (gameInstance) {
-                    gameInstance.scene.resume('TetrisScene');
-                }
-            };
-            document.getElementById('btn-pause').onclick = function () {
-                if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
+        // document.getElementById('statGame').onclick = function () {
+        //     if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1 ，阻止键盘事件
 
-                if (gameInstance) {
-                    enableButtons(0b100); // 启用开始按钮，禁用暂停和重置按钮
-                    gameInstance.scene.pause('TetrisScene');
-                }
-            };
-            document.getElementById('btn-reset').onclick = function () {
-                console.log(event.pointerId);
-                if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
-                
-                enableButtons(0b010); // 启用开始和重置按钮，禁用暂停按钮
-                if (tetrisScene && typeof tetrisScene.restartGame === 'function') {
-                    tetrisScene.restartGame();
-                }
-            };
+        //     enableButtons(0b011); // 启用暂停按钮，禁用开始按钮和重置按钮
+        //     if (tetrisScene && typeof tetrisScene.startGame === 'function') {
+        //         tetrisScene.startGame();
+        //     } else if (gameInstance) {
+        //         gameInstance.scene.resume('TetrisScene');
+        //     }
+        // };
+        // document.getElementById('pauseGame').onclick = function () {
+        //     if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
 
-            function enableButtons(enableOption) {
-                document.getElementById('btn-start').disabled = !(enableOption & 4);
-                document.getElementById('btn-pause').disabled = !(enableOption & 2);
-                document.getElementById('btn-reset').disabled = !(enableOption & 1);
-            }
+        //     if (gameInstance) {
+        //         enableButtons(0b100); // 启用开始按钮，禁用暂停和重置按钮
+        //         gameInstance.scene.pause('TetrisScene');
+        //     }
+        // };
+        // document.getElementById('btn-reset').onclick = function () {
+        //     console.log(event.pointerId);
+        //     if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
 
-            enableButtons(0b011); // 初始状态，启用开始和重置按钮，禁用暂停按钮  
-            
-        });
+        //     enableButtons(0b010); // 启用开始和重置按钮，禁用暂停按钮
+        //     if (tetrisScene && typeof tetrisScene.restartGame === 'function') {
+        //         tetrisScene.restartGame();
+        //     }
+        // };
+
+        enableButtons(0b011); // 初始状态，启用开始和重置按钮，禁用暂停按钮
+      });
     </script>
-</body>
+  </body>
 </html>

@@ -3,6 +3,8 @@ class TetrisScene extends Phaser.Scene {
     preload() {
         this.load.audio('click', 'assets/sounds/click.mp3');
         this.load.audio('score', 'assets/sounds/score.mp3');
+        this.load.audio('broken', 'assets/sounds/broken.mp3');
+        
     }
     constructor() {
         super({ key: 'TetrisScene' });
@@ -19,12 +21,28 @@ class TetrisScene extends Phaser.Scene {
             [[0, 1, 1], [1, 1, 0]]  // Z
         ];
         this.colors = [0x00ffff, 0xffff00, 0xaa00ff, 0x0000ff, 0xffa500, 0x00ff00, 0xff0000];
-        this.gridWidth = 12;
+        this.gridWidth = 13;
         this.gridHeight = 20;
         this.cellSize = 32;
         this.dropTime = 500;
         this.lastDrop = 0;
         this.gameOver = false;
+
+        this.MAX_LEVEL = 10;    
+        this.SCORE_PER_LEVEL = 100; // 每升一级 dropTime - 10;
+        this.level = 1;
+        
+    }
+
+    checkLevelUp(){
+        var newLevel = Math.ceil(this.score/ this.SCORE_PER_LEVEL);
+        if(newLevel > this.level)
+            this.level = newLevel;
+        if(this.level> this.MAX_LEVEL) {
+            this.level = MAX_LEVEL;
+            this.gameOver = true;
+            showModelDialog("恭喜，胜利通关！","您的得分：" + this.score);
+        }
     }
 
     create() {
@@ -51,30 +69,30 @@ class TetrisScene extends Phaser.Scene {
         borderRect.setStrokeStyle(borderThickness, borderColor);
         borderRect.setDepth(20);
 
-        // 右侧显示按键说明
-        this.add.text(
-            this.gridWidth * this.cellSize + 24,
-            32,
-            '操作说明：\n\n← →：左右移动\n↑：旋转\n↓：加速下落\nSpace：硬降\nEnter：重新开始',
-            {
-                fontSize: '15px',
-                color: '#fff',
-                fontFamily: 'Arial',
-                wordWrap: { width: 150, useAdvancedWrap: true }
-            }
-        ).setOrigin(0, 0).setDepth(30);
+        // // 右侧显示按键说明
+        // this.add.text(
+        //     this.gridWidth * this.cellSize + 24,
+        //     32,
+        //     '操作说明：\n\n← →：左右移动\n↑：旋转\n↓：加速下落\nSpace：硬降\nEnter：重新开始',
+        //     {
+        //         fontSize: '15px',
+        //         color: '#fff',
+        //         fontFamily: 'Arial',
+        //         wordWrap: { width: 150, useAdvancedWrap: true }
+        //     }
+        // ).setOrigin(0, 0).setDepth(30);
 
-        // 显示当前得分
-        this.scoreText = this.add.text(
-            this.gridWidth * this.cellSize + 24,
-            200,
-            '当前得分: 0',
-            {
-                fontSize: '15px',
-                color: '#fff',
-                fontFamily: 'Arial'
-            }
-        ).setOrigin(0, 0).setDepth(30);
+        // // 显示当前得分
+        // this.scoreText = this.add.text(
+        //     this.gridWidth * this.cellSize + 24,
+        //     200,
+        //     '当前得分: 0',
+        //     {
+        //         fontSize: '15px',
+        //         color: '#fff',
+        //         fontFamily: 'Arial'
+        //     }
+        // ).setOrigin(0, 0).setDepth(30);
     }
 
     update(time) {
@@ -166,39 +184,41 @@ class TetrisScene extends Phaser.Scene {
             }
         }
         if (linesCleared > 0) {
-            this.sound.play('score');
+            if(soundManager.enabled) this.sound.play('score');
             this.score += linesCleared * 1;
-            this.scoreText.setText(`当前得分: ${this.score}`);
+            this.checkLevelUp();
+            //this.scoreText.setText(`当前得分: ${this.score}`);
+            updateScoreUI(this.score, this.level);
         }
     }
 
     handleInput(event) {
         if (event.code === 'Enter') 
         {
-            this.sound.play('click');
+            if(soundManager.enabled)this.sound.play('click');
             this.restartGame();
         }
         if (this.gameOver || !this.tetromino) return;
         if (event.code === 'ArrowLeft') 
         {
-            this.sound.play('click');
+            if(soundManager.enabled)this.sound.play('click');
             this.moveTetromino(-1, 0);
         }
         if (event.code === 'ArrowRight'){
-            this.sound.play('click');
+            if(soundManager.enabled)this.sound.play('click');
             this.moveTetromino(1, 0);
         }
         if (event.code === 'ArrowDown'){
-            this.sound.play('click');            
+            if(soundManager.enabled)this.sound.play('click');            
             this.moveTetromino(0, 1);
         }
         if (event.code === 'ArrowUp'){
-            this.sound.play('click');
+            if(soundManager.enabled)this.sound.play('click');
             this.rotateTetromino();
         }
         if (event.code === 'Space') 
         {
-            this.sound.play('click');
+            if(soundManager.enabled)this.sound.play('click');
             this.hardDrop();
         }
         
@@ -256,31 +276,37 @@ class TetrisScene extends Phaser.Scene {
 
     endGame() {
         this.gameOver = true;
-        this.gameOverText.setText('    游戏结束\n按 Enter 重新开始');
-        this.gameOverText.setVisible(true);
+        if(soundManager.enabled) this.sound.play("broken");
+        // this.gameOverText.setText('    游戏结束\n按 Enter 重新开始');
+        // this.gameOverText.setVisible(true);
+        showModelDialog("失败！","您的得分：" + this.score);
     }
 
     restartGame() {
-        console.log('重新开始游戏');
+        console.log('restart game.');
+        closeModalDialog();
         this.gameOver = false;
         this.gameOverText.setVisible(false);
         this.blockGroup.clear(true, true); // 清理所有方块显示对象
         this.score = 0;
-        this.scoreText.setText('当前得分: 0');
+        this.level = 1;
+        updateScoreUI(this.score,this.level);
+        // this.scoreText.setText('当前得分: 0');
         this.initGrid();
         this.spawnTetromino();
     }
 
-    startGame() {
-        this.scene.resume();
-        this.gameOver = false;
-        this.gameOverText.setVisible(false);
-    }
+    // startGame() {
+    //     closeModalDialog();
+    //     this.scene.resume();
+    //     this.gameOver = false;
+    //     this.gameOverText.setVisible(false);
+    // }
 }
 
 const config = {
     type: Phaser.AUTO,
-    width: 600, // 调整宽度以适应右侧说明
+    width: 416, // 调整宽度以适应右侧说明
     height: 640,
     backgroundColor: '#222',
     parent: 'game-container',
