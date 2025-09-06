@@ -304,14 +304,22 @@ class TetrisScene extends Phaser.Scene {
     // }
 }
 
+
+
+ // 等待DOM完全就绪（确保容器元素存在）
+        document.addEventListener('DOMContentLoaded', function() {
+            
 const config = {
     type: Phaser.AUTO,
     width: 416, // 调整宽度以适应右侧说明
     height: 640,
     backgroundColor: '#222',
-    parent: 'game-container',
+    parent: 'gameArea',
     scene: [TetrisScene]
 };
-
-const game = new Phaser.Game(config);
+            const game = new Phaser.Game(config);
 window.game = game;
+
+        });
+
+

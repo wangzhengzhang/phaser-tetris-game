@@ -1,421 +1,430 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <base href="/game/tetris/" />
     <title>俄罗斯方块</title>
     <style>
-      .sound-toggle {
-        cursor: pointer;
-        transition: transform 0.2s ease;
+      /* 基础样式重置 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
       }
-      .sound-toggle:hover {
-        transform: scale(1.1);
+
+      h1 {
+        color: #333;
+        margin: 20px 0;
+        font-size: 24px;
+      }
+
+      h2 {
+        color: #444;
+        margin: 15px 0;
+        font-size: 20px;
+      }
+
+      /* 进度条覆盖层 */
+      .progress-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+      }
+
+      /* 进度条容器 */
+      .progress-container {
+        width: 80%;
+        max-width: 600px;
+        height: 8px;
+        background: #eee;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 20px 0;
+        border: 1px solid #ddd;
+      }
+
+      /* 进度条 */
+      .progress-bar {
+        height: 100%;
+        background: #4285f4;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      /* 资源列表样式 */
+      .resource-list {
+        max-height: 600px;
+        overflow-y: auto;
+        width: 80%;
+        max-width: 600px;
+        margin-top: 20px;
+        font-size: 14px;
+        border: 1px solid #eee;
+        padding: 10px;
+        border-radius: 4px;
+      }
+
+      .resource-item {
+        padding: 5px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .resource-item:last-child {
+        border-bottom: none;
+      }
+
+      /* 状态图标使用CSS绘制 */
+      .icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+
+      .icon-loading {
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #4285f4;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      .icon-success {
+        position: relative;
+        color: #4caf50;
+      }
+
+      .icon-success::after {
+        content: "✓";
+        position: absolute;
+        top: -2px;
+      }
+
+      .icon-error {
+        position: relative;
+        color: #f44336;
+      }
+
+      .icon-error::after {
+        content: "✗";
+        position: absolute;
+        top: -2px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* 页面内容样式 */
+      #mainContent {
+        display: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      #mainContent p {
+        color: #666;
+        line-height: 1.6;
+      }
+      html {
+        width: 100%; /* 宽度占满视口 */
+        height: 100%; /* 高度占满视口 */
+        margin: 0; /* 清除默认边距（部分浏览器可能有） */
+        padding: 0; /* 清除默认内边距 */
+      }
+
+      body {
+        width: 100%; /* 宽度 = html 的宽度（即视口宽度） */
+        height: 100%; /* 高度 = html 的高度（即视口高度） */
+        margin: 0; /* 关键！清除浏览器默认的 body 边距（通常是 8px） */
+        padding: 0; /* 清除默认内边距（可选，根据需求） */
+        background: #f0f0f0; /* 加背景色方便观察效果 */
       }
     </style>
-    <link
-      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: "#faa31b",
-              secondary: "#f76c5e",
-              dark: "#2d3047",
-              light: "#e0e1dd",
-              board: "#bbada0",
-              cell: "#cdc1b4",
-              empty: "#cdc1b4",
-              bd: "#10101020",
-
-              "tile-2": "#eee4da",
-              "tile-4": "#ede0c8",
-              "tile-8": "#f2b179",
-              "tile-16": "#f59563",
-              "tile-32": "#f67c5f",
-              "tile-64": "#f65e3b",
-              "tile-128": "#edcf72",
-              "tile-256": "#edcc61",
-              "tile-512": "#edc850",
-              "tile-1024": "#edc53f",
-              "tile-2048": "#edc22e",
-              "tile-super": "#3c3a32",
-            },
-            fontFamily: {
-              game: ['"Clear Sans"', "Helvetica Neue", "Arial", "sans-serif"],
-            },
-            boxShadow: {
-              tile: "0 4px 8px rgba(0, 0, 0, 0.15)",
-              button: "0 4px 0 rgba(0, 0, 0, 0.15)",
-              "button-hover": "0 6px 0 rgba(0, 0, 0, 0.2)",
-            },
-          },
-        },
-      };
-    </script>
   </head>
-  <body
-    class="bg-gradient-to-br from-light to-gray-300 min-h-screen font-game text-dark flex flex-col items-center justify-center p-4 sm:p-6"
-  >
-    <div class="w-full max-w-[416px] mx-auto flex flex-col items-center">
-      <!-- 游戏标题、分数和音效控制 -->
-      <div class="w-full flex justify-between items-center mt-2 mb-2">
-        <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-dark text-shadow">
-          Tetris
-        </h1>
-        <div class="flex gap-3 items-center">
-          <div class="bg-dark rounded-lg px-3 py-2 text-center">
-            <div class="text-xs text-primary uppercase font-bold">得分</div>
-            <div id="score" class="text-white text-xl font-bold">0</div>
-          </div>
-          <div class="bg-dark rounded-lg px-3 py-2 text-center">
-            <div class="text-xs text-primary uppercase font-bold">
-              最高分
-            </div>
-            <div id="scoreMax" class="text-white text-xl font-bold">0</div>
-          </div>
-
-          <div class="bg-dark rounded-lg px-3 py-2 text-center">
-            <div class="text-xs text-primary uppercase font-bold">等级</div>
-            <div class="text-white text-xl font-bold">
-              <span id="level">1</span>/10
-            </div>
-          </div>
-
-          <div
-            id="soundToggle"
-            class="sound-toggle bg-dark text-white p-2 rounded-full"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path
-                id="soundIcon"
-                d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
-              />
-            </svg>
-          </div>
-        </div>
-        <!-- <div class="instructions">使用方向键控制贪吃蛇移动</div> -->
+  <body>
+    <!-- 进度条覆盖层 -->
+    <div class="progress-overlay" id="progressOverlay">
+      <h2>加载中... <span id="progressPercent">0%</span></h2>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
       </div>
-      <!-- 游戏控制和说明 -->
-      <div class="w-full flex justify-between items-center mb-4">
-        <div>
-          <button
-            id="newGame"
-            onclick="restartGame();"
-            class="bg-primary hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-button hover:shadow-button-hover transform hover:-translate-y-0.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50"
-          >
-            新游戏
-          </button>
-          <button
-            id="pauseGame"
-            onclick="togglePauseGame();"
-            class="bg-secondary hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-button hover:shadow-button-hover transform hover:-translate-y-0.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50"
-          >
-            暂停
-          </button>
-        </div>
-        <div class="text-sm text-gray-600 hidden sm:block">
-          <span class="mr-3">方向键控制方块转动,空格键急速</span>
-        </div>
-      </div>
+      <div class="resource-list" id="resourceList"></div>
+    </div>
+    <div id="mainContent">
+      <h1>页面加载完成</h1>
+      <p>所有资源已加载完毕，可以正常使用了。</p>
+    </div>
+    <div id="mainHiddenContent">
 
-      <div id="gameArea" class="border-2 border-bd"></div>
-
-      <!-- 弹框相关代码 begin -->
-      <!-- 弹框样式 -->
-      <style>
-        /* 弹窗动画 */
-        .modal-appear {
-          animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            /* transform: translate(-50%, -60%) scale(0.95); 从中央上方10%位置、95%大小开始 */
+    </div>
+        <script>
+          async function appendHtml(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("加载失败");
+            const html = await response.text();
+            document.getElementById("mainHiddenContent").innerHTML += html;
+            return true;
           }
-          to {
-            opacity: 1;
-            /* transform: translate(-50%, -50%) scale(1); 到达中央位置、正常大小 */
-          }
+
+      // 加载并插入外部HTML
+      async function includeHTML(url, containerId) {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("加载失败");
+
+          const html = await response.text();
+          document.getElementById(containerId).innerHTML = html;
+
+          // 可选：如果加载的HTML中包含脚本，需要手动执行
+          executeScripts(document.getElementById(containerId));
+        } catch (error) {
+          console.error("加载HTML出错:", error);
         }
-      </style>
+      }
 
-      <!-- 弹窗容器 -->
-      <div
-        id="modalContainer"
-        class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-opacity duration-300 hidden"
-      >
-        <!-- 弹窗主体 -->
-        <div
-          id="modalContent"
-          class="w-full max-w-[250px] mx-4 bg-light rounded-xl border-2 border-primary p-5 transform scale-95 transition-all duration-300"
-        >
-          <!-- 标题栏 -->
-          <div
-            class="flex justify-between items-center mb-4 pb-3 border-b border-gray-700"
-          >
-            <h3 class="text-xl font-bold text-white flex items-center">
-              <i class="fa fa-star text-primary mr-2"></i>
-              <span id="modalContentTitle" class="text-dark text-shadow"
-                >恭喜完成挑战</span
-              >
-            </h3>
-            <!-- <button
-              id="closeModal"
-              class="text-gray-400 hover:text-black transition-colors"
-            >
-              <i class="fa fa-times"></i>
-            </button> -->
-          </div>
+      // 执行动态加载的脚本
+      function executeScripts(container) {
+        const scripts = container.querySelectorAll("script");
+        scripts.forEach((oldScript) => {
+          const newScript = document.createElement("script");
+          // 复制所有属性
+          Array.from(oldScript.attributes).forEach((attr) => {
+            newScript.setAttribute(attr.name, attr.value);
+          });
+          newScript.textContent = oldScript.textContent;
+          oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+      }
 
-          <!-- 内容区 -->
-          <div class="text-gray-200">
-            <div>
-              <p class="text-sm text-dark text-shadow text-center">
-                <span id="modalContentText"> 获得经验: +250</span>
-              </p>
-            </div>
-            <p class="text-sm text-gray-400 text-center mt-5">
-              按 Enter 重新开始
-            </p>
-          </div>
-        </div>
-      </div>
-      <!-- 弹框脚本 -->
-      <script>
-        const modalContent = document.getElementById("modalContent");
-        const modalContainer = document.getElementById("modalContainer");
-        function showModelDialog(title, conent) {
-          modalContentTitle.textContent = title;
-          modalContentText.textContent = conent;
-          // 显示游戏结束界面
-          modalContainer.classList.remove("pointer-events-none", "hidden");
-          modalContent.classList.remove("scale-95");
-          modalContent.classList.add("scale-100");
-          document.body.style.overflow = "hidden";
-        }
-        // 关闭弹窗
-        const closeModalDialog = () => {
-          modalContainer.classList.add("hidden");
-          modalContent.classList.remove("scale-100");
-          modalContent.classList.add("scale-95");
-          document.body.style.overflow = "";
-        };
+      // 加载并包含header.html到页面中
+      includeHTML("main.html", "mainContent");
+    </script>
 
-        //closeModal.addEventListener("click", closeModalDialog);
-        document.addEventListener("keydown", (e) => {
-          if (
-            e.key === "Enter" &&
-            !modalContent.classList.contains("pointer-events-none")
-          ) {
-            closeModalDialog();
+
+    <script>
+      resourceStatus = {};
+      let loadedResources = 0;
+      function resourceLoaded(ele) {
+        loadedResources++;
+        // var key = "";
+        // if(ele)
+        if (ele.tagName == "SCRIPT") resourceStatus[ele.src] = true;
+        else if (ele.tagName == "LINK") resourceStatus[ele.href] = true;
+        else if (ele.tagName == "IMG") resourceStatus[ele.src] = true;
+
+        console.log("resourceLoaded: ", ele);
+        if (typeof updateProgressForItem == "function")
+          updateProgressForItem(ele.src, true);
+        else console.log("updateProgressForItem is not a function");
+      }
+      function resourceError(ele, index) {
+        if (ele.tagName == "SCRIPT") resourceStatus[ele.src] = false;
+        else if (ele.tagName == "LINK") resourceStatus[ele.href] = false;
+        else if (ele.tagName == "IMG") resourceStatus[ele.src] = false;
+
+        console.log("resourceError: ", ele);
+        if (typeof updateProgressForItem == "function")
+          updateProgressForItem(ele.src, true);
+        else console.log("updateProgressForItem is not a function");
+      }
+    </script>
+
+    <!-- main content 页面内容 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" defer
+      onload="resourceLoaded(this);"
+      onerror="resourceError(this)"
+      rel="stylesheet"
+    />
+    <script
+      src="https://cdn.tailwindcss.com" defer
+      onload="resourceLoaded(this);"
+      onerror="resourceError(this)"
+    ></script>
+    <script src="./tailwind-config.js" defer
+      onload="resourceLoaded(this);"
+      onerror="resourceError(this)"
+    ></script>
+    <script
+      src="./phaser.min.js" defer
+      onload="resourceLoaded(this);"
+      onerror="resourceError(this)"
+    ></script>
+
+    <!-- main content 中需要加载的 js, css, img 资源-->
+    <link
+      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"  defer
+      onload="resourceLoaded(this);"
+      onerror="resourceError(this)"
+      rel="stylesheet"
+    />
+
+    <script
+      src="./main.js" defer
+      onload="resourceLoaded(this);"
+      onerror="resourceError(this)"
+    ></script>
+
+    <script
+      src="./storage_manager.js" defer
+      onload="resourceLoaded(this);"
+      onerror="resourceError(this)"
+    ></script>
+
+    
+
+    <script
+      src="./dialog.js" defer
+      onload="resourceLoaded(this);"
+      onerror="resourceError(this)"
+    ></script>
+
+    <script
+      src="./game.js" defer
+      onload="resourceLoaded(this);"
+      onerror="resourceError(this)"
+    ></script>
+
+
+
+    <script>
+      // 1. 获取需要监控的资源
+      function getResourcesToMonitor() {
+        var resourceId = 0; // 资源ID
+        const resources = [];
+        // 监控脚本
+        document.querySelectorAll("script[src]").forEach((script) => {
+          resources.push({ type: "script", url: script.src, ele: script });
+        });
+        // 监控图片
+        document.querySelectorAll("img").forEach((img) => {
+          if (img.src) {
+            resources.push({ type: "img", url: img.src, ele: img });
           }
         });
-      </script>
 
-      <!-- 弹框相关代码 end -->
-    </div>
-
-    <!-- game script -->
-    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/phaser/3.55.2/phaser.min.js"></script> -->
-    <script src="phaser.min.js"></script>
-    <script src="index.js"></script>
-    <script>
-      document.addEventListener("keydown", function (event) {
-        // console.log(event.keyCode == 32);
-        // if (event.keyCode == 32 ) {
-        //     event.stopPropagation();  // 阻止事件冒泡
-        //     event.preventDefault();   // 阻止默认行为
-        // }
-      });
-
-      // 按钮功能实现
-      let tetrisScene;
-      let gameInstance;
-
-      function restartGame() {
-        if (event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1 ，阻止键盘事件
-
-        enableButtons(0b011); // 启用暂停按钮，禁用开始按钮和重置按钮
-        if (tetrisScene && typeof tetrisScene.restartGame === "function") {
-          tetrisScene.restartGame();
-        } else if (gameInstance) {
-          gameInstance.scene.resume("TetrisScene");
-        }
-      }
-
-      function togglePauseGame() {
-        if (event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
-
-        if (gameInstance) {
-          //enableButtons(0b100); // 启用开始按钮，禁用暂停和重置按钮
-
-          // 判断游戏当前状态
-          if (!gameInstance.scene.isPaused("TetrisScene")) {
-            gameInstance.scene.pause("TetrisScene");
-            document.getElementById("pauseGame").textContent = "继续";
-
-          } else {
-            gameInstance.scene.resume("TetrisScene");
-            document.getElementById("pauseGame").textContent = "暂停";
-          }
-        }
-      }
-
-
-      var clickSound;
-      var scoreSound;
-      // 音效控制 - 简化为只使用clickSound
-      const soundManager = {
-        enabled: localStorage.getItem("tetris-sound-enabled") !== "false", // 默认开启音效
-
-        // // 播放音效
-        // play: function (key) {
-        //   if (!this.enabled) return;
-
-        //   switch (key) {
-        //     case "click":
-        //       if (clickSound) clickSound.play();
-        //       break;
-        //     case "score":
-        //       if (scoreSound) scoreSound.play();
-        //       break;
-        //     // case "complete":
-        //     //   if (completeSound) completeSound.play();
-        //     //   break;
-        //     // case "broken":
-        //     //   if (brokenSound) brokenSound.play();
-        //     //   break;
-        //     default:
-        //       break;
-        //   }
-        // },
-
-        // 切换音效开关状态
-        toggle: function () {
-          this.enabled = !this.enabled;
-          localStorage.setItem("tetris-sound-enabled", this.enabled);
-          this.updateIcon();
-        },
-
-        // 更新音效图标
-        updateIcon: function () {
-          const soundIcon = document.getElementById("soundIcon");
-          if (this.enabled) {
-            // 开启状态的图标
-            soundIcon.setAttribute(
-              "d",
-              "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
-            );
-          } else {
-            // 关闭状态的图标（带斜线）
-            soundIcon.setAttribute(
-              "d",
-              "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"
-            );
-          }
-        },
-      };
-
-      // 初始化音效控制按钮状态
-      soundManager.updateIcon();
-      document.getElementById("soundToggle").addEventListener("click", () => {
-        soundManager.toggle();
-      });
-
-      var scoreMax = localStorage.getItem("tetris-max-score")??0;
-      document.getElementById("scoreMax").textContent = scoreMax;
-
-      //   // 游戏失败结束
-      //   function gameOver(score) {
-      //     showModelDialog("失败！","您的得分：" + score);
-
-      //   }
-
-      //   // 游戏胜利
-      //   function gameWin(score) {
-      //     showModelDialog("恭喜，胜利通关！","您的得分：" + score);
-      //   }
-
-      function enableButtons(enableOption) {
-        document.getElementById("newGame").disabled = !(enableOption & 0b001);
-        document.getElementById("pauseGame").disabled = !(enableOption & 0b010);
-      }
-
-      function updateScoreUI(score, level) {
-        document.getElementById("score").textContent = score;
-        document.getElementById("level").textContent = level;
-        if(scoreMax < score){
-            scoreMax = score;
-            localStorage.setItem("tetris-max-score", scoreMax);
-            document.getElementById("scoreMax").textContent = scoreMax;
-        }
-      }
-
-      // 等待 Phaser 游戏加载完成
-      window.addEventListener("DOMContentLoaded", function () {
-        // 监听 Phaser 游戏实例和场景
-        if (window.Phaser && window.game) {
-          gameInstance = window.game;
-          tetrisScene = gameInstance.scene.keys["TetrisScene"];
-        }
-
-        if (tetrisScene) return;
-        else {
-          // 兼容 index.js 里没有挂载到 window 的情况
-          setTimeout(() => {
-            if (window.game) {
-              gameInstance = window.game;
-              tetrisScene = gameInstance.scene.keys["TetrisScene"];
+        // 监控样式表（修复forEach问题）
+        Array.from(document.styleSheets).forEach((styleSheet) => {
+          try {
+            if (styleSheet.href) {
+              resources.push({
+                type: "css",
+                url: styleSheet.href,
+                ele: styleSheet,
+              });
+              styleSheet.resourceId = resourceId;
+              resourceId++;
             }
+          } catch (e) {
+            // 跨域样式表可能无法访问，忽略
+          }
+        });
+
+        return resources;
+      }
+
+      // 2. 初始化监控
+      const resources = getResourcesToMonitor();
+      const totalResources = resources.length;
+
+      const progressBar = document.getElementById("progressBar");
+      const progressPercent = document.getElementById("progressPercent");
+      const resourceList = document.getElementById("resourceList");
+      const progressOverlay = document.getElementById("progressOverlay");
+      const mainContent = document.getElementById("mainContent");
+
+      // 3. 更新进度
+      function updateProgress() {
+        const progress =
+          totalResources > 0
+            ? Math.round((loadedResources / totalResources) * 100)
+            : 100;
+
+        progressBar.style.width = `${progress}%`;
+        progressPercent.textContent = `${progress}%`;
+
+        // 所有资源加载完成
+        if (progress === 100) {
+          setTimeout(() => {
+            progressOverlay.style.opacity = 0;
+            setTimeout(() => {
+              progressOverlay.style.display = "none";
+              mainContent.style.display = "block";
+            }, 10);
           }, 500);
         }
+      }
 
-        // document.getElementById('statGame').onclick = function () {
-        //     if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1 ，阻止键盘事件
+      function updateProgressForItem(key, status = "") {
+        Array.from(resourceList.children).forEach((item) => {
+          if (item.key === key) {
+            var status = resourceStatus[item.key];
+            var names = item.key.replace(/\/+$/, "").split("/"); // 替换掉末尾的 / (如果存在)
+            var name = names.pop();
+            //if(!name)name = names.pop();
 
-        //     enableButtons(0b011); // 启用暂停按钮，禁用开始按钮和重置按钮
-        //     if (tetrisScene && typeof tetrisScene.startGame === 'function') {
-        //         tetrisScene.startGame();
-        //     } else if (gameInstance) {
-        //         gameInstance.scene.resume('TetrisScene');
-        //     }
-        // };
-        // document.getElementById('pauseGame').onclick = function () {
-        //     if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
+            if (status === true) {
+              // 加载成功
+              item.innerHTML = `
+                <span class="icon icon-success"></span>
+                <span>${name}</span>
+              `;
+            } else if (status === false) {
+              // 加载失败
+              item.innerHTML = `
+                <span class="icon icon-error"></span>
+                <span>${name}(加载失败)</span>
+              `;
+            } else {
+              // 加载中
+              item.innerHTML = `
+                <span class="icon icon-loading"></span>
+                <span>${name}</span>
+              `;
+            }
+          }
+        });
 
-        //     if (gameInstance) {
-        //         enableButtons(0b100); // 启用开始按钮，禁用暂停和重置按钮
-        //         gameInstance.scene.pause('TetrisScene');
-        //     }
-        // };
-        // document.getElementById('btn-reset').onclick = function () {
-        //     console.log(event.pointerId);
-        //     if(event.pointerId < 0) return; // 点击鼠标时 1，键盘时 -1，阻止键盘事件
+        updateProgress();
+      }
 
-        //     enableButtons(0b010); // 启用开始和重置按钮，禁用暂停按钮
-        //     if (tetrisScene && typeof tetrisScene.restartGame === 'function') {
-        //         tetrisScene.restartGame();
-        //     }
-        // };
+      // 4. 监控每个资源的加载状态
+      function monitorResource(resource) {
+        // 创建资源项显示
+        const listItem = document.createElement("div");
+        listItem.className = "resource-item";
+        listItem.key = resource.url;
+        resourceList.appendChild(listItem);
+        updateProgressForItem(resource.url); // 未知状态
+      }
 
-        enableButtons(0b011); // 初始状态，启用开始和重置按钮，禁用暂停按钮
-      });
+      // 5. 开始监控所有资源
+      resources.forEach(monitorResource);
+
+      // 6. 处理window.onload（所有资源加载完成的最终确认）
+      window.onload = function () {
+        // 确保进度条最终达到100%
+        loadedResources = totalResources;
+        updateProgress();
+        console.log("所有资源加载完成（window.onload触发）");
+      };
+
+      // 初始进度更新
+      updateProgress();
     </script>
   </body>
 </html>

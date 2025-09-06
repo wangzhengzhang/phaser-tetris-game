@@ -1,0 +1,82 @@
+<!-- 游戏主界面，游戏分数/等级信息显示，游戏开始/暂停操作按钮，游戏区域显示-->
+<style>
+  .sound-toggle {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .sound-toggle:hover {
+    transform: scale(1.1);
+  }
+</style>
+<div
+  class="bg-gradient-to-br from-light to-gray-300 min-h-screen font-game text-dark flex flex-col items-center justify-center p-4 sm:p-6"
+>
+  <div class="w-full max-w-[416px] mx-auto flex flex-col items-center">
+    <!-- 游戏标题、分数和音效控制 -->
+    <div class="w-full flex justify-between items-center mt-2 mb-2">
+      <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-dark text-shadow">
+        Tetris
+      </h1>
+      <div class="flex gap-3 items-center">
+        <div class="bg-dark rounded-lg px-3 py-2 text-center">
+          <div class="text-xs text-primary uppercase font-bold">得分</div>
+          <div id="score" class="text-white text-xl font-bold">0</div>
+        </div>
+        <div class="bg-dark rounded-lg px-3 py-2 text-center">
+          <div class="text-xs text-primary uppercase font-bold">最高分</div>
+          <div id="scoreMax" class="text-white text-xl font-bold">0</div>
+        </div>
+
+        <div class="bg-dark rounded-lg px-3 py-2 text-center">
+          <div class="text-xs text-primary uppercase font-bold">等级</div>
+          <div class="text-white text-xl font-bold">
+            <span id="level">1</span>/10
+          </div>
+        </div>
+
+        <div
+          id="soundToggle"
+          class="sound-toggle bg-dark text-white p-2 rounded-full"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              id="soundIcon"
+              d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <!-- 游戏控制和说明 -->
+    <div class="w-full flex justify-between items-center mb-4">
+      <div>
+        <button
+          id="newGame"
+          onclick="restartGame();"
+          class="bg-primary hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-button hover:shadow-button-hover transform hover:-translate-y-0.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50"
+        >
+          新游戏
+        </button>
+        <button
+          id="pauseGame"
+          onclick="togglePauseGame();"
+          class="bg-secondary hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-button hover:shadow-button-hover transform hover:-translate-y-0.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50"
+        >
+          暂停
+        </button>
+      </div>
+      <div class="text-sm text-gray-600 hidden sm:block">
+        <span class="mr-3">方向键控制方块转动,空格键急速</span>
+      </div>
+    </div>
+    <div id="gameArea" class="border-2 border-bd"></div>
+  </div>
+</div>
+
+<!-- <script src="https://cdn.bootcdn.net/ajax/libs/phaser/3.55.2/phaser.min.js"></script> -->

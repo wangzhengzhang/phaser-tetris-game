@@ -1,0 +1,57 @@
+<!-- 弹窗容器 -->
+<div
+  id="modalContainer"
+  class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-opacity duration-300 hidden"
+>
+  <style>
+    /* 弹窗动画 */
+    .modal-appear {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        /* transform: translate(-50%, -60%) scale(0.95); 从中央上方10%位置、95%大小开始 */
+      }
+      to {
+        opacity: 1;
+        /* transform: translate(-50%, -50%) scale(1); 到达中央位置、正常大小 */
+      }
+    }
+  </style>
+
+  <!-- 弹窗主体 -->
+  <div
+    id="modalContent"
+    class="w-full max-w-[250px] mx-4 bg-light rounded-xl border-2 border-primary p-5 transform scale-95 transition-all duration-300"
+  >
+    <!-- 标题栏 -->
+    <div
+      class="flex justify-between items-center mb-4 pb-3 border-b border-gray-700"
+    >
+      <h3 class="text-xl font-bold text-white flex items-center">
+        <i class="fa fa-star text-primary mr-2"></i>
+        <span id="modalContentTitle" class="text-dark text-shadow"
+          >恭喜完成挑战</span
+        >
+      </h3>
+      <!-- <button
+              id="closeModal"
+              class="text-gray-400 hover:text-black transition-colors"
+            >
+              <i class="fa fa-times"></i>
+            </button> -->
+    </div>
+
+    <!-- 内容区 -->
+    <div class="text-gray-200">
+      <div>
+        <p class="text-sm text-dark text-shadow text-center">
+          <span id="modalContentText"> 获得经验: +250</span>
+        </p>
+      </div>
+      <p class="text-sm text-gray-400 text-center mt-5">按 Enter 重新开始</p>
+    </div>
+  </div>
+</div>
