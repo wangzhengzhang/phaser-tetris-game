@@ -3,12 +3,6 @@ var ishtmlLoaded = false;
 var modalContent = null;
 var modalContainer = null;
 
-async function loadHtml(){
-  await appendHtml("dialog.html"); // 注意：这里有可能会挡住主界面。
-  modalContent = document.getElementById("modalContent");
-  modalContainer = document.getElementById("modalContainer");
-  ishtmlLoaded = true;
-}
 
 function showModelDialog(title, conent) {
   modalContentTitle.textContent = title;
@@ -37,4 +31,10 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-loadHtml();
+async function initDialog()
+{
+  await appendHtml("dialog.html"); // 注意：这里有可能会挡住主界面。
+  modalContent = document.getElementById("modalContent");
+  modalContainer = document.getElementById("modalContainer");
+  ishtmlLoaded = true;
+}

@@ -49,26 +49,29 @@ const soundManager = {
     }
   },
 };
-
+//localStorage.clear();
 scoreManager = {
-    scoreMax: localStorage.getItem("tetris-max-score") ?? 0,
+    scoreMax: localStorage.getItem("tetris-max-score")!==null?parseInt(localStorage.getItem("tetris-max-score")):0,
     updateMaxScore:function(score){
-      if (scoreMax < score) {
-        scoreMax = score;
-        localStorage.setItem("tetris-max-score", scoreMax);
-        document.getElementById("scoreMax").textContent = scoreMax;
+      if (this.scoreMax < score) {
+        this.scoreMax = score;
+        localStorage.setItem("tetris-max-score", this.scoreMax );
+        document.getElementById("scoreMax").textContent = this.scoreMax;
       }
     }
 
 }
 
-window.addEventListener("DOMContentLoaded", function () {
+// window.addEventListener("DOMContentLoaded", function () {
+
+// });
+
+function initStorageManager()
+{
   // 初始化音效控制按钮状态
   soundManager.updateIcon();
-
   document.getElementById("soundToggle").addEventListener("click", () => {
     soundManager.toggle();
   });
-
   document.getElementById("scoreMax").textContent = scoreManager.scoreMax;
-});
+}

@@ -1,12 +1,3 @@
-document.addEventListener("keydown", function (event) {
-  // console.log(event.keyCode == 32);
-  // if (event.keyCode == 32 ) {
-  //     event.stopPropagation();  // 阻止事件冒泡
-  //     event.preventDefault();   // 阻止默认行为
-  // }
-});
-
-// 按钮功能实现
 let tetrisScene;
 let gameInstance;
 
@@ -61,9 +52,14 @@ function updateScoreUI(score, level) {
 }
 
 // 等待 Phaser 游戏加载完成
-window.addEventListener("DOMContentLoaded", function () {
+// window.addEventListener("DOMContentLoaded", function () {
 
-  // 监听 Phaser 游戏实例和场景
+
+// });
+
+function initMain()
+{
+    // 监听 Phaser 游戏实例和场景
   if (window.Phaser && window.game) {
     gameInstance = window.game;
     tetrisScene = gameInstance.scene.keys["TetrisScene"];
@@ -80,4 +76,4 @@ window.addEventListener("DOMContentLoaded", function () {
     }, 500);
   }
   enableButtons(0b011); // 初始状态，启用开始和重置按钮，禁用暂停按钮
-});
+}
