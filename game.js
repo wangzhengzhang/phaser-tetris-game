@@ -40,9 +40,9 @@ class TetrisScene extends Phaser.Scene {
     this.colors = [
       0x00ffff, 0xffff00, 0xaa00ff, 0x0000ff, 0xffa500, 0x00ff00, 0xff0000,
     ];
-    this.gridWidth = 13;
-    this.gridHeight = 20;
-    this.cellSize = 32;
+    this.gridWidth = GRID_WIDTH;
+    this.gridHeight = GRID_HEIGHT;
+    this.cellSize = CELL_SIZE;
     this.dropTime = 500;
     this.lastDrop = 0;
     this.gameOver = false;
@@ -338,13 +338,15 @@ class TetrisScene extends Phaser.Scene {
 
 // });
 
+
+
 function initGame()
 {
     const config = {
     type: Phaser.AUTO,
-    width: 416, // 调整宽度以适应右侧说明
-    height: 640,
-    backgroundColor: "#222",
+    width: GAME_WIDTH, 
+    height: GAME_HEIGHT,
+    backgroundColor: "#333333",
     parent: "gameArea",
     scene: [TetrisScene],
   };

@@ -1,10 +1,19 @@
  /* 基础样式重置 */
- * {
+ /* * {
      margin: 0;
      padding: 0;
      box-sizing: border-box;
      font-family: Arial, Helvetica, sans-serif;
- }
+ } */
+ 
+ /* 在你的 CSS 文件中 */
+/* .isolate-tailwind {
+  all: initial;
+}
+
+.isolate-tailwind * {
+  all: initial;
+} */
 
  h1 {
      color: #333;
@@ -13,13 +22,16 @@
  }
 
  h2 {
+     all: initial;  /*防止加载tailwindcss之后，样式被修改了*/
      color: #444;
      margin: 15px 0;
      font-size: 20px;
+     font-family: Arial, Helvetica, sans-serif;
  }
 
  /* 进度条覆盖层 */
  .progress-overlay {
+
      position: fixed;
      top: 0;
      left: 0;
@@ -32,6 +44,7 @@
      align-items: center;
      z-index: 9999;
      transition: opacity 0.5s ease;
+     font-family: Arial, Helvetica, sans-serif;
  }
 
  /* 进度条容器 */
@@ -44,7 +57,12 @@
      overflow: hidden;
      margin: 20px 0;
      border: 1px solid #ddd;
+     
  }
+
+ /* #progressPercent{
+    all: initial;
+ } */
 
  /* 进度条 */
  .progress-bar {
@@ -56,6 +74,7 @@
 
  /* 资源列表样式 */
  .resource-list {
+
      max-height: 600px;
      overflow-y: auto;
      width: 80%;
@@ -68,6 +87,7 @@
  }
 
  .resource-item {
+
      padding: 5px 0;
      border-bottom: 0px solid #f0f0f0;
  }
@@ -136,7 +156,14 @@
      line-height: 1.6;
  }
 
- html {
+ /* 禁用触摸缩放相关行为 */
+html, body {
+   touch-action: manipulation; /* 仅允许平移和简单触摸，禁用缩放 */
+   -ms-touch-action: manipulation;
+}
+
+html {
+
      width: 100%;
      /* 宽度占满视口 */
      height: 100%;

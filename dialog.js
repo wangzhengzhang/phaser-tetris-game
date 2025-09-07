@@ -33,7 +33,7 @@ document.addEventListener("keydown", (e) => {
 
 async function initDialog()
 {
-  await appendHtml("dialog.html"); // 注意：这里有可能会挡住主界面。
+  await appendHtml("./dialog.html"); // 注意：这里有可能会挡住主界面。
   modalContent = document.getElementById("modalContent");
   modalContainer = document.getElementById("modalContainer");
   ishtmlLoaded = true;

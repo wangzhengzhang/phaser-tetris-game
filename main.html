@@ -7,11 +7,14 @@
   .sound-toggle:hover {
     transform: scale(1.1);
   }
+  /* 纯CSS绘制方向箭头 */
+        
+
 </style>
 <div
-  class="bg-gradient-to-br from-light to-gray-300 min-h-screen font-game text-dark flex flex-col items-center justify-center p-4 sm:p-6"
+  class="bg-gradient-to-br from-light to-gray-300 min-h-screen font-game text-dark flex flex-col items-center justify-center p-4 sm:pt-1"
 >
-  <div class="w-full max-w-[416px] mx-auto flex flex-col items-center">
+  <div class="w-full lg:max-w-[416px] mx-auto flex flex-col items-center">
     <!-- 游戏标题、分数和音效控制 -->
     <div class="w-full flex justify-between items-center mt-2 mb-2">
       <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-dark text-shadow">
@@ -76,6 +79,8 @@
       </div>
     </div>
     <div id="gameArea" class="border-2 border-bd"></div>
+    <a id="goHomeLink" href="../" class="text-dark text-sm mt-2">@Home - Pixel Narrative Studio</span>
+
   </div>
 </div>
 

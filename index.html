@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <base href="/game/tetris/" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 非常重要：在适配手机和电脑的size时自动调整-->
+    <meta charset="utf-8" />
     <title>俄罗斯方块</title>
-    <link rel="stylesheet" href="page_load.css" />
+    
   </head>
   <body>
+    <link rel="stylesheet" href="page_load.css" />
     <!-- 进度条覆盖层 -->
     <div class="progress-overlay" id="progressOverlay">
       <h2>loading... <span id="progressPercent">0%</span></h2>
@@ -22,18 +26,21 @@
 <script>
   const jsFiles = [
     // 先加载引擎，再加载业务逻辑
+    //"https://s.url.cn/qqun/qun/qqweb/m/qun/confession/js/vconsole.min.js", // 手机浏览器中查看
+    "./device_compatibility.js",
+    "touch_direction.js",
+    "./cdn.tailwindcss.com.js",
+    "./tailwind.config.js",
     "./phaser.min.js", // 加载引擎
-    "https://cdn.tailwindcss.com",
-    "./tailwind-config.js",
     "./main.js",
     "./storage_manager.js",
     "./dialog.js",
     "./game.js",
+
   ];
 
   const cssFiles = [
-    "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css",
-    "https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css",
+    "./font-awesome.min.css",
   ];
 
   function initApplication() {
@@ -47,6 +54,9 @@
       initMain();
       initStorageManager();
       await initDialog(); // 等待异步操作
+      //initTouchDirection("gameArea");
+      //initClickDirection(window.game.canvas);
+      initSceneClickDirection(window.game.scene.keys["TetrisScene"]);
     })();
   }
 </script>
