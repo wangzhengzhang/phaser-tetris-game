@@ -31,7 +31,7 @@
 
  /* 进度条覆盖层 */
  .progress-overlay {
-
+     all: initial;
      position: fixed;
      top: 0;
      left: 0;
@@ -74,7 +74,7 @@
 
  /* 资源列表样式 */
  .resource-list {
-
+     all: initial;
      max-height: 600px;
      overflow-y: auto;
      width: 80%;
@@ -87,8 +87,10 @@
  }
 
  .resource-item {
-
+     all: initial;
+     display:block;
      padding: 5px 0;
+     margin:0;
      border-bottom: 0px solid #f0f0f0;
  }
 

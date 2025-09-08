@@ -218,15 +218,15 @@ function createTriangleArea(scene) {
   ration = 0.5 - d/2;
   ration1 = 1 - ration;
 
-  textUp = scene.add.text(width * 0.5, height * ration, "旋转", textStyle).setOrigin(0.5);
+  textUp = scene.add.text(width * 0.5, height * ration, i18next.t('rotate'), textStyle).setOrigin(0.5);
   textRight = scene.add
-    .text(width * ration1, height * 0.5, "右移", textStyle)
+    .text(width * ration1, height * 0.5, i18next.t('right'), textStyle)
     .setOrigin(0.5);
   textDown = scene.add
-    .text(width * 0.5, height * ration1, "加速", textStyle)
+    .text(width * 0.5, height * ration1, i18next.t('drop'), textStyle)
     .setOrigin(0.5);
   textLeft = scene.add
-    .text(width *  ration, height * 0.5, "左移", textStyle)
+    .text(width *  ration, height * 0.5, i18next.t('left'), textStyle)
     .setOrigin(0.5);
 }
 

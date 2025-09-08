@@ -22,16 +22,16 @@
       </h1>
       <div class="flex gap-3 items-center">
         <div class="bg-dark rounded-lg px-3 py-2 text-center">
-          <div class="text-xs text-primary uppercase font-bold">得分</div>
+          <div data-i18n="score" class="text-xs text-primary uppercase font-bold">得分</div>
           <div id="score" class="text-white text-xl font-bold">0</div>
         </div>
         <div class="bg-dark rounded-lg px-3 py-2 text-center">
-          <div class="text-xs text-primary uppercase font-bold">最高分</div>
+          <div data-i18n="max_score" class="text-xs text-primary uppercase font-bold">最高分</div>
           <div id="scoreMax" class="text-white text-xl font-bold">0</div>
         </div>
 
         <div class="bg-dark rounded-lg px-3 py-2 text-center">
-          <div class="text-xs text-primary uppercase font-bold">等级</div>
+          <div data-i18n="level" class="text-xs text-primary uppercase font-bold">等级</div>
           <div class="text-white text-xl font-bold">
             <span id="level">1</span>/10
           </div>
@@ -59,15 +59,15 @@
     <!-- 游戏控制和说明 -->
     <div class="w-full flex justify-between items-center mb-4">
       <div>
-        <button
-          id="newGame"
+        <button id="btnNewGame"
+          data-i18n="new_game"
           onclick="restartGame();"
           class="bg-primary hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-button hover:shadow-button-hover transform hover:-translate-y-0.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50"
         >
           新游戏
         </button>
-        <button
-          id="pauseGame"
+        <button id="btnPauseGame"
+          data-i18n="pause"
           onclick="togglePauseGame();"
           class="bg-secondary hover:bg-opacity-90 text-white font-bold py-2 px-4 rounded-lg shadow-button hover:shadow-button-hover transform hover:-translate-y-0.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50"
         >
@@ -75,11 +75,11 @@
         </button>
       </div>
       <div class="text-sm text-gray-600 hidden sm:block">
-        <span class="mr-3">方向键控制方块转动,空格键急速</span>
+        <span data-i18n="description" class="mr-3">方向键控制方块转动,空格键急速</span>
       </div>
     </div>
     <div id="gameArea" class="border-2 border-bd"></div>
-    <a id="goHomeLink" href="../" class="text-dark text-sm mt-2">@Home - Pixel Narrative Studio</span>
+    <a id="goHomeLink" href="../" class="text-dark text-sm mt-2">@Home - Pixel Narrative Studio</a>
 
   </div>
 </div>

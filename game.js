@@ -58,7 +58,7 @@ class TetrisScene extends Phaser.Scene {
     if (this.level > this.MAX_LEVEL) {
       this.level = MAX_LEVEL;
       this.gameOver = true;
-      showModelDialog("恭喜，胜利通关！", "您的得分：" + this.score);
+      showModelDialog(i18next.t('congratulation'), i18next.t('your_score') +": " + this.score);
     }
   }
 
@@ -89,31 +89,6 @@ class TetrisScene extends Phaser.Scene {
     );
     borderRect.setStrokeStyle(borderThickness, borderColor);
     borderRect.setDepth(20);
-
-    // // 右侧显示按键说明
-    // this.add.text(
-    //     this.gridWidth * this.cellSize + 24,
-    //     32,
-    //     '操作说明：\n\n← →：左右移动\n↑：旋转\n↓：加速下落\nSpace：硬降\nEnter：重新开始',
-    //     {
-    //         fontSize: '15px',
-    //         color: '#fff',
-    //         fontFamily: 'Arial',
-    //         wordWrap: { width: 150, useAdvancedWrap: true }
-    //     }
-    // ).setOrigin(0, 0).setDepth(30);
-
-    // // 显示当前得分
-    // this.scoreText = this.add.text(
-    //     this.gridWidth * this.cellSize + 24,
-    //     200,
-    //     '当前得分: 0',
-    //     {
-    //         fontSize: '15px',
-    //         color: '#fff',
-    //         fontFamily: 'Arial'
-    //     }
-    // ).setOrigin(0, 0).setDepth(30);
   }
 
   update(time) {
@@ -306,9 +281,7 @@ class TetrisScene extends Phaser.Scene {
   endGame() {
     this.gameOver = true;
     if (soundManager.enabled) this.sound.play("broken");
-    // this.gameOverText.setText('    游戏结束\n按 Enter 重新开始');
-    // this.gameOverText.setVisible(true);
-    showModelDialog("失败！", "您的得分：" + this.score);
+    showModelDialog(i18next.t('failed'), i18next.t('your_score') +": " + this.score);
   }
 
   restartGame() {
@@ -324,21 +297,7 @@ class TetrisScene extends Phaser.Scene {
     this.initGrid();
     this.spawnTetromino();
   }
-
-  // startGame() {
-  //     closeModalDialog();
-  //     this.scene.resume();
-  //     this.gameOver = false;
-  //     this.gameOverText.setVisible(false);
-  // }
 }
-
-// 等待DOM完全就绪（确保容器元素存在）
-// document.addEventListener("DOMContentLoaded", function () {
-
-// });
-
-
 
 function initGame()
 {

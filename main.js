@@ -21,17 +21,17 @@ function togglePauseGame() {
     // 判断游戏当前状态
     if (!gameInstance.scene.isPaused("TetrisScene")) {
       gameInstance.scene.pause("TetrisScene");
-      document.getElementById("pauseGame").textContent = "继续";
+      document.getElementById("btnPauseGame").textContent = i18next.t('continue');
     } else {
       gameInstance.scene.resume("TetrisScene");
-      document.getElementById("pauseGame").textContent = "暂停";
+      document.getElementById("btnPauseGame").textContent =  i18next.t('pause');
     }
   }
 }
 
 function enableButtons(enableOption) {
-  document.getElementById("newGame").disabled = !(enableOption & 0b001);
-  document.getElementById("pauseGame").disabled = !(enableOption & 0b010);
+  document.getElementById("btnNewGame").disabled = !(enableOption & 0b001);
+  document.getElementById("btnPauseGame").disabled = !(enableOption & 0b010);
 }
 
 function updateScoreUI(score, level) {

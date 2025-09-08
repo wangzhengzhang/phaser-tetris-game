@@ -1,0 +1,22 @@
+ {
+    "title":"Tetris",
+    "new_game":"New Game",
+    "tetris": "Tetris",
+    "pause":"Pause",
+    "continue":"Continue",
+    "restrart":"Restart",
+    "quit":"Quit",
+    "description":"arrow / space key to control",
+    "scroe":"Score",
+    "max_score":"highest",
+    "level":"Level",
+    "rotate":"rotate",
+    "left":"left",
+    "right":"right",
+    "drop":"drop",
+    "failed":"Failed!",
+    "your_score":"Your Score",
+    "enter_to_restart":"Press Enter to restart!",
+    "congratulation":"Congratulations, you have successfully cleared the level!"
+  }
+

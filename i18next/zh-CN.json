@@ -1,0 +1,21 @@
+{
+    "title":"俄罗斯方块",
+    "new_game":"新游戏",
+    "tetris": "Tetris",
+    "pause":"暂停",
+    "continue":"继续",
+    "restrart":"重新开始",
+    "quit":"退出",
+    "description":"方向键控制方块转动,空格键急速",
+    "scroe":"得分",
+    "max_score":"最高分",
+    "level":"等级",
+    "rotate":"旋转",
+    "left":"左移",
+    "right":"右移",
+    "drop":"加速",
+    "failed":"失败!",
+    "your_score":"您的得分",
+    "enter to restart":"按 Enter 键重新开始!",
+    "congratulation":"恭喜，胜利通关！"
+  }
